@@ -1,319 +1,390 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct TreeNode {
-	int date;
-	struct TreeNode *left,*right;
-}TreeNode;
-
-//메뉴
-void menu()
-{
-	printf("◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇\n");
-	printf("◇         M E N U              ◇\n");
-	printf("◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇\n");
-	printf("◇0)Quit                        ◇\n");
-	printf("◇1)Insert                      ◇\n");
-	printf("◇2)Delete                      ◇\n");
-	printf("◇3)Count                       ◇\n");
-	printf("◇4)Preorder_print              ◇\n");
-	printf("◇5)Max                         ◇\n");
-	printf("◇6)Height                      ◇\n");
-	printf("◇7)Median                      ◇\n");
-	printf("◇8)Get_one_child_node          ◇\n");
-	printf("◇9)Print                       ◇\n");
-	printf("◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇\n");
-	printf("원하는 번호를 입력하세요 : ");
+//구조체선언
+typedef struct TreeNode{
+	int key; // key값은 모두 동일, 필드에서 입력받는 변수
+	struct TreeNode *left, *right;
 }
-//삽입함수
-void insert_node(TreeNode **root, int key, int *cnt)  //key = 새로운 노드
-{
-	TreeNode *p, *t; //p는 부모 노드,t는 현재 노드
-	TreeNode *n; //n은 새로운 노드
+TreeNode;
 
+//메인함수에서 목차를 불러오기 위해 table함수 구성
+void table(){
+	printf("****************************프로그램을 선택하세요*******************************");
+	printf("********************************************************************************");
+	printf("****************Binary Search Tree(BST), 완전 이진 트리 프로그램****************");
+	printf("********************************************************************************");
+	printf("1. Insert : 원소를 입력받아 BST에 넣는다.\n");
+	printf("2. Delete : 원소를 찾아서 BST에서 삭제한다.\n");
+	printf("3. Count : BST의 원소갯수를 출력한다.\n");
+	printf("4. Pretorder_print : BST의 원소를 전위순회 방식으로 출력한다.\n");
+	printf("5. Max : BST의 원소중 가장 큰 수를 출력한다.\n");
+	printf("6. Height : BST의 높이를 출력한다.\n");
+	printf("7. Median : BST의 원소중 중간값의 원소를 출력한다.\n");
+	printf("8. Get_one_child_node : BST의 원소중에서 자식이 하나인 노드의 갯수를 출력한다.\n");
+	printf("9. printf : 현재 BST의 원소를 작은 수부터 큰 수의 순서로 출력한다.\n");
+	printf("10. Quit : BST프로그램을 끝낸다.\n");
+	printf("********************************************************************************\n");
+	//프로그램의 개요 설명
+}
+
+//(1)Insert
+//key를 이진 탐색 트리 root에 삽입한다.
+//key가 이미 root 안에 있으면 삽입되지 않는다.
+void insert_node(TreeNode **root, int key, int *count){
+	TreeNode *p, *t; //p는 부모노드, t는 현재노드, *count는 중간값 출력을 위한 카운트
+	TreeNode *n; //n은 새로운노드
 	t = *root;
 	p = NULL;
-
-	//탐색 수행
-	while(t != NULL) 
-	{
-		if(key == t->date) return; //이미 존재하는 값인경우
+	// 탐색을 먼저수행
+	while(t != NULL){
+		if(key == t->key){
+			printf("이미 존재하는 key 입니다.\n");
+			return;
+		}
 		p = t;
-		if(key < p->date) t = p->left; //key가 data보다 작을 경우 왼쪽 노드로.
-		else t = p->right;  //클 경우 오른쪽 노드로.
+		if(key < t->key) t = t->left;
+		else t = t->right;
+		//key가 현재 노드보다 작으면 왼쪽, 크면 오른쪽으로 삽입
 	}
-	//key가 트리안에 없으므로 삽입가능
-	//트리 노드 구성
-	n = (TreeNode *)malloc(sizeof(TreeNode));  //공간 확보
-	if(n == NULL) return;  //공간 확보를 못한경우
+	// key가 트리 안에 없으므로 삽입 가능
+	n = (TreeNode *)malloc(sizeof(TreeNode));
+	if(n==NULL) return;
 	//데이터 복사
-	n->date = key;
-	n->left = n->right = NULL;  //key의 양쪽 링크값 null값으로 초기화
-	//부모 노드와 연결
-	if(p != NULL)  //부모 노드가 있을경우
-		if(key < p->date)  //key 값이 부모 노드 값보다 작을경우 왼쪽
-			p->left = n;
-		else p->right = n;  //클경우 오른쪽
-	else *root = n;  //부모 노드가 없을경우 key 값을 루트 값으로
-	(*cnt)++;
+	n->key = key;
+	n->left = n->right = NULL;
+	// 부모노드와 연결
+	if(p != NULL)
+		if(key < p->key)
+			p ->left = n;
+		else p ->right =n;
+		//root가 NULL인 경우
+	else *root = n;
+	(*count)++;
 }
-//삭제함수
-void delete_node(TreeNode **root, int key, int *cnt)
-{
-	TreeNode *p, *child , *succ, *succ_p, *t;
 
-	//key를 갖는 노드 t를 탐색,p는 t의 부모 노드
+//(2)Delete
+void delete_node(TreeNode **root, int key, int *count){
+	TreeNode *p, *child, *succ, *succ_p, *t;
+	//key를 갖는 노드 t를 탐색, p는 t 의 부모노드, *count는 중간값 출력을 위한 카운트
 	p = NULL;
 	t = *root;
-	//key를 갖는 노드 t를 탐색한다.
-	while(t !=  NULL && t->date != key)  //key값의 위치를 찾은 때까지 반복
-	{
+	// key를 갖는 노드 t를 탐색한다.
+	while(t != NULL && t ->key != key){
 		p = t;
-		t = (key < t->date ) ? t->left : t->right;  //key 값이 t 값보다 작으면 왼쪽 자식으로, 크면 오른쪽 자식으로 이동
+		t = (key < t->key) ? t ->left : t ->right;
 	}
-	//탐색이 종료된 시점에 t가 NULL이면 트리 안에 key값이 없음
-	if(t == NULL)  //탐색 트리에 없는 키
-	{
-		printf("key 값이 트리안에 없습니다.\n");
-		return;  //key가 없으므로 함수 종료
+	// 탐색이 종료된 시점에 t가 NULL이면 트리 안에 key가 없음
+	if(t == NULL){
+		printf("존재하지 않는 key 입니다.\n");
+		return ;
 	}
-	//첫 번째 경우 : 단말 노드인 경우자
-	if((t->left == NULL) && (t->right == NULL))
-	{
-		if(p != NULL)
-		{
-			//부모 노드의 자식 필드를 NULL로 만든다.
+	//단말 노드인 경우
+	if((t->left == NULL) && (t -> right == NULL)){
+		if(p != NULL){
+			// 부모 노드의 자식 필드를 NULL로 만든다.
 			if(p->left == t)
 				p->left = NULL;
 			else p->right = NULL;
 		}
-		else  //만약 부모 노드가 NULL이면 삭제되는 노드가 루트
+		else //만약 부모 노드가 NULL이면 삭제되는 노드가 루트
 			*root = NULL;
 	}
-	//두 번째 경우 : 하나의 자식만 가지는 경우
-	else if((t->left == NULL) || (t->right == NULL))
-	{
-		child = (t->left != NULL) ? t->left : t->right;  //삭제할 노드의 자식노드
-		if(p != NULL)
-		{
-			if(p->left == t)  //삭제할 노드의 부모를 자식과 연결
+	//하나의 자식만 가지는경우
+	else if((t ->left == NULL) || (t->right == NULL)){
+		child = (t->left != NULL) ? t->left : t ->right;
+		if(p != NULL){
+			if(p->left == t) // 부모를 자식과 연결
 				p->left = child;
 			else p->right = child;
 		}
-		else  //만약 부모 노드가 NULL이면 삭제되는 노드가 루트
+		else //만약 부모 노드가 NULL이면 삭제되는 노드가 루트
 			*root = child;
 	}
-	//세 번째 경우 : 두 개의 자식을 가지는 경우
-	else
-	{
-		//왼쪽 서브 트리에서 후계자를 찾는다.
+	//두개의 자식을 가지는 경우
+	else{
+		//오른쪽 서브 트리에서 후계자를 찾는다.
 		succ_p = t;
 		succ = t->left;
-		//후계자를 찾아서 계속 오른쪽으로 이동한다.
-		while(succ->right != NULL)
-		{
+		// 후계자를 찾아서 계속 왼쪽으로 이동한다.
+		while(succ ->right != NULL){
 			succ_p = succ;
-			succ = succ->right;
+			succ = succ->right; 
 		}
-		//후속자의 부모와 자식을 연결
-		if(succ_p->right == succ)
-			succ_p->right = succ->left;
+		// 후속자의 부모와 자식을 연결
+		if(succ_p->left == succ)
+			succ_p->left = succ->right;
 		else
-			succ_p->left = succ->left;
+			succ_p->right = succ->right;
 		//후속자가 가진 키 값을 현재 노드에 복사
-		t->date = succ->date;
-		//원래 후속자 삭제
+		t->key = succ->key;
+		// 원래의 후속자 삭제
 		t = succ;
 	}
 	free(t);
-	(*cnt)--;
+	(*count)--;
 }
-//전위순회 출력
-//   n1
-//  /  ＼
-// n2    n3
-//n1 n2 n3 순으로 출력
-void preorder_print(TreeNode *node)
+
+//(3)Count
+int get_count(TreeNode *node){
+	int count = 0; //count초기화
+	if (node != NULL){
+		count = 1 + get_count(node->left) + get_count(node->right);
+	}
+	return count;
+	//node가 NULL아니면 자기자신노드(root)1개 + 왼쪽노드의 갯수 + 오른쪽노드 갯수를 count에 저장 후 count값을 반환
+}
+
+//(4)Preorder_print
+void preorder_print(TreeNode *root)
 {
-	if(node)  //노드가 존재할 경우
-	{
-		printf("%d ",node->date);  //노드 출력
-		preorder_print(node->left);  //왼쪽 자식으로 이동
-		preorder_print(node->right);  //오른쪽 자식으로 이동
+	if(root){
+		printf("%d \n", root->key); //노드방문
+		preorder_print(root->left); //왼쪽 서브트리 순회
+		preorder_print(root->right); //오른쪽 서브트리 순회
 	}
 }
-//max값 찾기
-//가장 큰 값은 가장 오른쪽에 존재
-TreeNode * findmax(TreeNode *node)
+
+//(5)Max
+void Max(TreeNode *root) 
 {
-	if(node->right != NULL)      //오른쪽 자식이 있을경우
-		findmax(node->right);    //오른쪽자식으로 이동
-	else return node;			 //더이상 오른쪽 자식이 없을경우 출력
+	TreeNode *max;
+	max = root;
+	while(max->right != NULL)
+	{
+		max = max->right;
+		if(max->right == NULL)
+		{
+			printf("최댓값 = %d\n",*max);
+		}
+	} 
+	//오른쪽 자식노드가 NULL이 아닐경우 오른쪽 자식노드의 값을 max에 저장하고
+	//오른쪽 자식노드가 NULL이면 마지막에 저장된 max값을 출력한다.
 }
-//트리의 높이
-int get_height(TreeNode *node)
-{
-	int height=0;
-	if(node != NULL)
-		//왼쪽과 오른쪽의 높이 중 더 큰 값 + 1
-		 height = 1 + (get_height(node->left)>get_height(node->right)?get_height(node->left):get_height(node->right) );
+
+//(6)Height
+int get_height(TreeNode *node){
+	int height = 0;
+	if(node != NULL){
+		height = 1 + ((get_height(node->left), get_height(node->right)));
+	}
 	return height;
+	//node가 NULL이 아닐경우 자기자신노드(root)+1 + 왼쪽노드의 높이 또는 오른쪽노드의 높이를 height에 저장 후 반환한다.
 }
-//중간값 출력
-void median(TreeNode *node, int cnt1, int *cnt2) //cnt1 : 총 노드수, cnt2중간값까지의 count
+
+//(7)Median
+void get_median(TreeNode *node, int mid1, int *mid2) //mid1:총 노드수, mid2중간값까지의 count는 포인터형으로받아 메인함수에서 반환
 {
-	//inorder순으로 작은값부터 카운트
 	if(node)
 	{
-		median(node->left,cnt1,cnt2);  //왼쪽노드 탐색
-		(*cnt2)++;
-		if(cnt1%2) //갯수가 홀수
+		get_median(node->left,mid1,mid2);
+		(*mid2)++;
+		if(mid1%2) //갯수가 홀수
 		{
-			if(((cnt1+1)/2) == (*cnt2))
-				printf("중간값 : %d\n",node->date);
+			if(((mid1+1)/2) == (*mid2))
+				printf("중간값 : %d\n",node->key);
 		}
 		else //갯수가 짝수
-			if((cnt1/2) == (*cnt2))
-				printf("중간값 : %d\n",node->date);
-		median(node->right,cnt1,cnt2);  //오른쪽노드 탐색
-	}		
+			if((mid1/2) == (*mid2))
+				printf("중간값 : %d\n",node->key);
+		get_median(node->right,mid1,mid2);
+	}
 }
-//자식이 하나인 노드의 개수
-int get_one_child_node(TreeNode *node, int *cnt)
-{
-	if(node)
+
+//(8)Get_one_child_node
+int Get_one_child_node(TreeNode *root){ //자식이 하나인 노드 탐색
+	if (root != NULL)
 	{
-		//작은 수부터(inoder순) 탐색
-		get_one_child_node(node->left,cnt);  //왼쪽노드 탐색
-		//왼쪽 자식이 없고 오른쪽 자식은 있는경우
-		if(node->left == NULL)
-		{
-			if(node->right != NULL)
-				(*cnt)++;
-		}
-		//오른쪽 자식이 없고 왼쪽 자식이 있는경우
+		if (root->left == NULL && root->right != NULL)
+			return 1 + Get_one_child_node(root->right); 
+		//왼쪽노드가 NULL이고 오른쪽노드가 NULL이 아닐 경우
+		else if (root->left != NULL && root->right == NULL)
+			return 1 + Get_one_child_node(root->left); 
+		//왼쪽노드가 NULL이 아니고 오른쪽노드가 NULL일 경우
 		else
-			if(node->right == NULL)
-				(*cnt)++;
-		get_one_child_node(node->right,cnt);  //오른쪽노드 탐색
+			return Get_one_child_node(root->left) + Get_one_child_node(root->right); 
+		//왼쪽노드와 오른쪽노드가 NULL이 아닐 경우
 	}
-	return *cnt;
-}
-//이진 탐색트리를 작순 수부터 출력하려면 inorder로 출력하면 된다.
-void inorder(TreeNode *node)
-{
-	if(node)
-	{
-		inorder(node->left);		//왼쪽노드 탐색
-		printf("%d ",node->date);	//노드 출력
-		inorder(node->right);		//오른쪽노드 탐색
-	}
+	else return 0;
+
 }
 
-int main(void)
+//(9)Print
+void Print(TreeNode *node){
+	if(node==NULL)
+		return;
+	//node가 NULL일경우 반환값 없음
+	else{	
+		Print(node->left);
+		printf("%d \n",node->key);
+		Print(node->right);
+	}//inorder로 탐색
+}
+
+//메인함수
+int main()
 {
-	TreeNode *binary = NULL;  //새로운 트리
-	TreeNode *temp;  //구조체 반환형 함수를 저장할 변수
-	int choice,node; //node = 삽입,삭제할 노드 변수
-	int cnt = 0, o_cnt = 0; //cnt:노드 갯수, o_cnt:자식이 하나인 노드and
-	char c;
-	int n=0;
-	while(1)
-	{
-		system("cls");
-		menu();
+	int in=0; // 프로그램 선택을 위한 변수 
+	int input=0; //프로그램 선택 후 프로그램 실행 여부를 위한 변수 
+	int key, count=0, count1=0; 
+	//key = 모든 값을 받아들이기 위한 변수, count = count함수에서 count를 받아들이기 위한 변수, count1 = get_median함수에서 *mid를 받아들이기 위한 변수
+	TreeNode *root=NULL;
+	//TreeNode의 함수에서 포인터값을 받아들이기 위한 변수
 
-		n=scanf("%d%c",&choice,&c);  
-		if(n==0 || c != '\n')  //n이 0이면 choice를 정수로 받지 않은것
-		{					   //c 가 엔터키('\n')가 아지면 정수후 다른것을 입력한경우
-			fflush(stdin);	   //현재 재대로 받지않은것을 지움.
-			choice = 10;	   //choice에 10을 주어 default로 가도록 함.
+	//프로그램선택
+	table();
+	while((scanf_s("%d", &in)) != EOF){ //파일의 끝까지 검사하여 무한루프 방지
+		fflush(stdin); //버퍼를 비우기 위해 scanf밑에 선언
+		if(in<=0 || in>=11)
+			printf("프로그램 선택을 잘못하셨습니다.\n다시 선택하십시오.\n");
+		//프로그램 선택 목록인 경우가 아니면 다시 선택하도록함
+		if(in==1){
+			printf("숫자를 입력하세요.\n");
+			scanf("%d", &key);
+			insert_node(&root, key, &count); 
+			//Insert값함수에서의 변수를 메인 함수에서 받아들임
+			printf("계속하려면 1을, 종료하려면 0을 입력하세요\n");
+			scanf("%d", &input);
+			if(input==1){
+				system("cls");
+				table();
+				//1을 선택할경우 table로 이동하여 프로그램 계속 수행
+			}
+			else if(input==0)
+				exit(0);
+			//0을 선택할경우 프로그램 종료
 		}
 
-		switch(choice) 
-		{
-		case 0: exit(0);                           //종료
-		case 1: {                                  //삽입
-			printf("새로 추가할 값 입력 : ");
-			n = scanf("%d%c",&node,&c);
-			if(n==0 || c != '\n')				   //choice와같이 정수만 받도록함.
-			{
-				printf("정수만 입력할수 있습니다.\n");
-				fflush(stdin);
-				break;
+		if(in==2){
+			printf("숫자를 입력하세요.\n");
+			scanf("%d", &key);
+			delete_node(&root, key, &count); 
+			//Delete함수에서의 변수를 메인 함수에서 받아들임
+			printf("계속하려면 1을, 종료하려면 0을 입력하세요\n");
+			scanf("%d", &input);
+			if(input==1){
+				system("cls");
+				table();
+				//1을 선택할경우 table로 이동하여 프로그램 계속 수행
 			}
-			insert_node(&binary,node,&cnt);
-		} break;
-		case 2: {                                  //삭제
-			printf("삭제할 값 입력 : ");
-			n = scanf("%d%c",&node,&c);
-			if(n==0 || c != '\n')			   //choice와같이 정수만 받도록함.
-			{
-				printf("정수만 입력할수 있습니다.\n");
-				fflush(stdin);
-				break;
-			}
-			delete_node(&binary,node,&cnt);
-		}break;
-		case 3: printf("현재 노드의 갯수 : %d\n",cnt); break;  //카운트
-		case 4: {								//전위순회
-			preorder_print(binary);
-			printf("\n"); 
-		}break;
-		case 5: {							    //max값
-			if(binary == NULL)					//트리가 비어있을때 max함수 호출.
-			{
-				printf("트리가 비어있습니다.\n");
-				break;
-			}
-			temp = findmax(binary);
-			printf("트리의 max값은 : %d\n",temp->date); 
-		} break;
-		case 6: printf("트리의 높이는 : %d\n",get_height(binary)); break;  //트리의 높이
-		case 7: {								//중간값
-			median(binary,cnt,&o_cnt);
-			o_cnt = 0;
-		} break;
-		case 8: {								//자식 노드가 한개인 노드갯수
-			printf("자식이 하나인 노드의 갯수 : %d\n",get_one_child_node(binary,&o_cnt)); 
-			o_cnt = 0;
-		} break;
-		case 9: {								//작은순으로 출력
-			inorder(binary);
-			printf("\n");
-		}break;
-		default: printf("잘못 입력하였습니다. 다시 입력하세요\n");
+			else if(input==0)
+				exit(0);
+			//0을 선택할경우 프로그램 종료
 		}
-		system("pause");
 
+		if(in==3){
+			count = 0;
+			count = get_count(root); 
+			//Count함수에서의 변수를 메인 함수에서 받아들임
+			printf("노드의개수: %d\n",count);
+			printf("계속하려면 1을, 종료하려면 0을 입력하세요\n");
+			scanf("%d", &input);
+			if(input==1){
+				system("cls");
+				table();
+				//1을 선택할경우 table로 이동하여 프로그램 계속 수행
+			}
+			else if(input==0)
+				exit(0);
+			//0을 선택할경우 프로그램 종료
+		}
+
+		if(in==4){
+			preorder_print(root); 
+			//Preorder_print함수에서의 변수를 메인 함수에서 받아들임
+			printf("계속하려면 1을, 종료하려면 0을 입력하세요\n");
+			scanf("%d", &input);
+			if(input==1){
+				system("cls");
+				table();
+				//1을 선택할경우 table로 이동하여 프로그램 계속 수행
+			}
+			else if(input==0)
+				exit(0);
+			//0을 선택할경우 프로그램 종료
+		}
+
+		if(in==5){
+			Max(root); 
+			//Max값을 구하는 함수에서의 변수를 메인 함수에서 받아들임
+			printf("계속하려면 1을, 종료하려면 0을 입력하세요\n");
+			scanf("%d", &input);
+			if(input==1){
+				system("cls");
+				table();
+				//1을 선택할경우 table로 이동하여 프로그램 계속 수행
+			}
+			else if(input==0)
+				exit(0);
+			//0을 선택할경우 프로그램 종료
+		}
+
+		if(in==6){
+			printf("이진트리의 높이 : %d\n", get_height(root)); 
+			//Height를 구하는 함수에서의 변수를 메인 함수에서 받아들임
+			printf("계속하려면 1을, 종료하려면 0을 입력하세요\n");
+			scanf("%d", &input);
+			if(input==1){
+				system("cls");
+				table();
+				//1을 선택할경우 table로 이동하여 프로그램 계속 수행
+			}
+			else if(input==0)
+				exit(0);
+			//0을 선택할경우 프로그램 종료
+		}
+
+		if(in==7){
+			get_median(root, count, &count1); 
+			//Median값을 구하는 함수에서의 변수를 메인 함수에서 받아들임
+			count1 = 0;
+			printf("계속하려면 1을, 종료하려면 0을 입력하세요\n");
+			scanf("%d", &input);
+			if(input==1){
+				system("cls");
+				table();
+				//1을 선택할경우 table로 이동하여 프로그램 계속 수행
+			}
+			else if(input==0)
+				exit(0);
+			//0을 선택할경우 프로그램 종료
+		}
+
+		if(in==8){
+			printf("자식이하나인노드 : %d\n", Get_one_child_node(root)); 
+			//자식이 한개인 노드를 함수에서의 변수를 메인 함수에서 받아들임
+			printf("계속하려면 1을, 종료하려면 0을 입력하세요\n");
+			scanf("%d", &input);
+			if(input==1){
+				system("cls");
+				table();
+				//1을 선택할경우 table로 이동하여 프로그램 계속 수행
+			}
+			else if(input==0)
+				exit(0);
+			//0을 선택할경우 프로그램 종료
+		}
+
+		if(in==9){
+			printf("현재 BST안에 있는 원소\n");
+			Print(root); 
+			//Print함수에서의 변수를 메인 함수에서 받아들임
+			printf("계속하려면 1을, 종료하려면 0을 입력하세요\n");
+			scanf("%d", &input);
+			if(input==1){
+				system("cls");
+				table();
+				//1을 선택할경우 table로 이동하여 프로그램 계속 수행
+			}
+			else if(input==0)
+				exit(0);
+			//0을 선택할경우 프로그램 종료
+		}
+
+		if(in==10){
+			exit(1);
+			//입력값에 10을 입력하면 프로그램 종료
+		}
 	}
-
 	return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

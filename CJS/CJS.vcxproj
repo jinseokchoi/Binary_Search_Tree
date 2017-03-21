@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Memory Allocation.cpp" />
+    <ClCompile Include="Binary tree.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{DE9976DB-55E7-4973-9FA9-4E35F505338B}</ProjectGuid>

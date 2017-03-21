@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Memory Allocation.cpp">
+    <ClCompile Include="Binary tree.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
